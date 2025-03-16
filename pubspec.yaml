@@ -1,0 +1,44 @@
+name: mi_aplicacion
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: any
+  path: any
+
+  cupertino_icons: ^1.0.8
+  intl: ^0.18.1  # Asegúrate de usar la última versión disponible
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  percent_indicator: ^4.0.4
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logoapk.png"
+  remove_alpha_ios: true
+
+
+
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    -  assets/splash.png
+    -  assets/logo.png
+    -  assets/logoprub.png
+    -  assets/logocrear.png
+    -  assets/logoapk.png
+
