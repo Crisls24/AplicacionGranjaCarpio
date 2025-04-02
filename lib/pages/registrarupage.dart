@@ -14,9 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _dbHelper = DatabaseHelper();
 
-  // Variables para los roles
-  String? _selectedRole; // Almacena el rol seleccionado
-  bool _obscureText = true; // Controla la visibilidad de la contraseña
+  bool _obscureText = true;
 
   void _register() async {
     String name = _nameController.text.trim();
@@ -35,8 +33,6 @@ class _RegisterPageState extends State<RegisterPage> {
       name,
       email,
       password,
-      _selectedRole == 'Encargado',
-      _selectedRole == 'Veterinario',
     );
 
     if (isRegistered) {
@@ -55,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // Agregar SingleChildScrollView
+      body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -112,7 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 // Campo de contraseña
                 TextField(
                   controller: _passwordController,
-                  obscureText: _obscureText, // Usar el estado de visibilidad
+                  obscureText: _obscureText,
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     border: OutlineInputBorder(
@@ -131,34 +127,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Radio buttons para roles
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Radio<String>(
-                      value: 'Encargado',
-                      groupValue: _selectedRole,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedRole = value; // Cambia el rol seleccionado
-                        });
-                      },
-                    ),
-                    const Text('Encargado'),
-                    Radio<String>(
-                      value: 'Veterinario',
-                      groupValue: _selectedRole,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedRole = value; // Cambia el rol seleccionado
-                        });
-                      },
-                    ),
-                    const Text('Veterinario'),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Botón Crear Cuenta
                 ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
@@ -181,7 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const Text("¿Ya tienes una cuenta? "),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pop(context); // Regresa a la página de inicio de sesión
+                        Navigator.pop(context);
                       },
                       child: Text(
                         "Iniciar sesión",
