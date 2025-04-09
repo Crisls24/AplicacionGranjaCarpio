@@ -20,7 +20,7 @@ class GuiaPage extends StatelessWidget {
               child: Image.asset(
                 'assets/ali.png',
                 width: double.infinity,
-                height: 250,
+                height: 220,
                 fit: BoxFit.cover,
               ),
             ),

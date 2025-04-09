@@ -16,7 +16,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'usuarios.db');
     return await openDatabase(
       path,
-      version: 11,
+      version: 13,
       onCreate: (db, version) async {
         await db.execute(''' 
           CREATE TABLE usuarios(
@@ -42,6 +42,7 @@ class DatabaseHelper {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           cerdo_id INTEGER, 
           descripcion TEXT,
+          fecha TEXT,
           FOREIGN KEY (cerdo_id) REFERENCES cerdos (id) ON DELETE CASCADE
           )
         ''');
@@ -153,6 +154,7 @@ class DatabaseHelper {
     Map<String, dynamic> historial = {
       'cerdo_id': cerdoId,
       'descripcion': descripcion,
+      'fecha': DateTime.now().toIso8601String(), // Guarda la fecha en formato ISO 8601
     };
     return await db.insert('historial_salud', historial);
   }
@@ -164,8 +166,16 @@ class DatabaseHelper {
       'historial_salud',
       where: 'cerdo_id = ?',
       whereArgs: [cerdoId],
+      orderBy: 'fecha DESC', // Ordenar por fecha de forma descendente
     );
   }
-
+  Future<int> deleteHistorialSalud(int id) async {
+    final db = await database;
+    return await db.delete(
+      'historial_salud', // Nombre de tu tabla
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
 

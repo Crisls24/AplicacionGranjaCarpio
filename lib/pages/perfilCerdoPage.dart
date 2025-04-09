@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Para el formateo de fechas
 import 'db_helper.dart';
 
 class PerfilCerdo extends StatefulWidget {
@@ -18,21 +19,7 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
   String etapaActual = "";
   Map<String, dynamic>? cerdoData;
 
-
   List<Map<String, dynamic>> _historialSalud = []; // Lista para almacenar el historial de salud
-
-  Future<void> _cargarHistorialSalud() async {
-    final dbHelper = DatabaseHelper();
-    _historialSalud = await dbHelper.getHistorialSalud(cerdoData!['id']); // Obtener el historial del cerdo
-    setState(() {}); // Actualizar la vista
-  }
-  String calcularSemanas(String fechaNacimiento) {
-    DateTime fechaNac = DateTime.parse(fechaNacimiento); // Convertir a DateTime
-    DateTime hoy = DateTime.now(); // Obtener fecha actual
-    int diasVividos = hoy.difference(fechaNac).inDays; // Diferencia en días
-    int semanasVividas = (diasVividos / 7).floor(); // Convertir a semanas
-    return "$semanasVividas semanas";
-  }
 
   @override
   void initState() {
@@ -50,9 +37,30 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
         pesoController.text = data['peso'].toString();
         razaController.text = data['raza'];
         etapaActual = data['etapa'];
-        // Aquí también puedes cargar el historial de salud si es necesario
+      });
+
+      // Cargar el historial de salud después de que se hayan cargado los datos del cerdo
+      await _cargarHistorialSalud();
+    }
+  }
+
+  Future<void> _cargarHistorialSalud() async {
+    final dbHelper = DatabaseHelper();
+    if (cerdoData != null) {
+      // Obtener el historial del cerdo y hacer una copia de la lista
+      List<Map<String, dynamic>> historial = await dbHelper.getHistorialSalud(cerdoData!['id']);
+      setState(() {
+        _historialSalud = List.from(historial); // Crear una copia de la lista
       });
     }
+  }
+
+  String calcularSemanas(String fechaNacimiento) {
+    DateTime fechaNac = DateTime.parse(fechaNacimiento); // Convertir a DateTime
+    DateTime hoy = DateTime.now(); // Obtener fecha actual
+    int diasVividos = hoy.difference(fechaNac).inDays; // Diferencia en días
+    int semanasVividas = (diasVividos / 7).floor(); // Convertir a semanas
+    return "$semanasVividas semanas";
   }
 
   String calcularAlimento(double peso, int edadSemanas, String etapa) {
@@ -150,39 +158,22 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                         onPressed: () async {
                           if (isEditing) {
                             final dbHelper = DatabaseHelper();
-                            if (cerdoData != null) {
-                              // Verificar que el controlador de historial no esté vacío
-                              if (historialController.text.isNotEmpty) {
-                                // Actualizar datos del cerdo
-                                await dbHelper.updateCerdo(
-                                  cerdoData!['id'], // ID del cerdo
-                                  double.parse(pesoController.text),
-                                  razaController.text,
-                                  etapaActual,
-                                );
 
-                                // Agregar un nuevo registro en el historial de salud
-                                await dbHelper.addHistorialSalud(
-                                  cerdoData!['id'], // ID del cerdo
-                                  historialController.text, // Descripción del historial
-                                );
+                            // Actualizar datos del cerdo sin depender del historial
+                            await dbHelper.updateCerdo(
+                              cerdoData!['id'], // ID del cerdo
+                              double.parse(pesoController.text),
+                              razaController.text,
+                              etapaActual,
+                            );
 
-                                // Limpiar el campo de historial después de guardar
-                                historialController.clear();
+                            // Mostrar mensaje de éxito
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Datos del cerdo actualizados")),
+                            );
 
-                                await _cargarHistorialSalud();
-
-                                // Mostrar mensaje de éxito
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Historial de salud guardado")),
-                                );
-                              } else {
-                                // Mostrar mensaje de error si el campo está vacío
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Por favor, ingresa una descripción para el historial")),
-                                );
-                              }
-                            }
+                            // Opcionalmente, puedes recargar el historial si lo deseas
+                            await _cargarHistorialSalud();
 
                             setState(() {
                               isEditing = false; // Cambia a modo no edición
@@ -264,36 +255,72 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    maxLines: 4,
+                    maxLines: 3,
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final dbHelper = DatabaseHelper();
-                      if (cerdoData != null && historialController.text.isNotEmpty) {
-                        await dbHelper.addHistorialSalud(cerdoData!['id'], historialController.text);
-                        historialController.clear(); // Limpia el campo después de guardar
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Historial de salud guardado")),
-                        );
-                        await _cargarHistorialSalud(); // Cargar el historial actualizado
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Por favor, ingresa una descripción para el historial")),
-                        );
-                      }
-                    },
-                    child: Text("Guardar Historial"),
-                  ),
-
+                  // Mostrar el botón de guardar solo si se está editando
+                  if (isEditing) ...[
+                    SizedBox(height: 8), // Espacio antes del botón
+                    ElevatedButton(
+                      onPressed: () async {
+                        final dbHelper = DatabaseHelper();
+                        if (cerdoData != null && historialController.text.isNotEmpty) {
+                          await dbHelper.addHistorialSalud(cerdoData!['id'], historialController.text);
+                          historialController.clear(); // Limpia el campo después de guardar
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Historial de salud guardado")),
+                          );
+                          await _cargarHistorialSalud(); // Cargar el historial actualizado
+                        }
+                      },
+                      child: Text("Guardar Historial"),
+                    ),
+                  ],
                   // Mostrar el historial de salud
                   ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(), // Evitar desplazamiento interno
                     itemCount: _historialSalud.length,
                     itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(_historialSalud[index]['descripcion']),
-                        subtitle: Text(_historialSalud[index]['fecha'] ?? "Sin fecha"),
+                      // Obtener la fecha y formatearla
+                      String fechaStr = _historialSalud[index]['fecha'] ?? "Sin fecha";
+                      DateTime fecha = DateTime.parse(fechaStr);
+                      String fechaFormateada = DateFormat('dd/MM/yyyy HH:mm').format(fecha);
+
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0), // Margen reducido
+                        elevation: 4, // Sombra de la tarjeta
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10), // Esquinas redondeadas
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(15.0), // Espaciado interno
+                          child: Row( // Usar Row para tener el texto y el botón en la misma fila
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _historialSalud[index]['descripcion'],
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    Text(
+                                      fechaFormateada,
+                                      style: TextStyle(color: Colors.grey[600], fontSize: 14), // Color gris para la fecha
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _confirmDeleteHistorial(index); // Llama al método de confirmación
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -336,21 +363,58 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
 
   Widget _buildStageButton(String stage) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
+        final dbHelper = DatabaseHelper();
+        await dbHelper.updateCerdo(
+          cerdoData!['id'],
+          double.parse(pesoController.text),
+          razaController.text,
+          stage, // Actualiza la etapa
+        );
+
         setState(() {
-          etapaActual = stage;
+          etapaActual = stage; // Cambia la etapa actual
         });
       },
       child: Text(stage, style: TextStyle(fontSize: 16)),
     );
   }
+
+  // Método para mostrar el diálogo de confirmación y eliminar el historial
+  void _confirmDeleteHistorial(int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirmar Eliminación"),
+          content: const Text("¿Estás seguro de que deseas eliminar este registro del historial?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final dbHelper = DatabaseHelper();
+                // Eliminar el registro de la base de datos
+                await dbHelper.deleteHistorialSalud(_historialSalud[index]['id']);
+                // Eliminar el registro de la lista
+                setState(() {
+                  _historialSalud.removeAt(index); // Eliminar de la lista
+                });
+                Navigator.of(context).pop(); // Cerrar el diálogo
+                // Mostrar mensaje de éxito
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Registro del historial eliminado")),
+                );
+              },
+              child: const Text("Eliminar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
-
-
-
-
-
-
-
-
-

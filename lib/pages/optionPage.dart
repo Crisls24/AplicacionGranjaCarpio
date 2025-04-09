@@ -35,6 +35,17 @@ class _OptionPageState extends State<OptionPage> {
     homePageKey.currentState?.loadCerdos();
   }
 
+  // Método para navegar al perfil del cerdo
+  void _navigateToPerfilCerdo(int cerdoId) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PerfilCerdo(cerdoId: cerdoId)),
+    );
+
+    // Al regresar, recarga los cerdos para asegurarte de que la etapa esté actualizada
+    homePageKey.currentState?.loadCerdos();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,7 +228,7 @@ class _HomePageState extends State<HomePage> {
                       backgroundImage: AssetImage('assets/iconoUser.png'),
                     ),
                     title: Text(cerdo['identificacion']), // Mostrar ID del cerdo
-                    subtitle: Text(cerdo['etapa'] ?? 'Sin etapa'), // Mostrar raza
+                    subtitle: Text(cerdo['etapa'] ?? 'Sin etapa'), // Mostrar etapa
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -230,12 +241,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PerfilCerdo(cerdoId: cerdo['id']), // Pasamos el ID
-                              ),
-                            );
+                            _navigateToPerfilCerdo(cerdo['id']); // Navegar al perfil del cerdo
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepPurple,
@@ -252,6 +258,17 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  // Método para navegar al perfil del cerdo
+  void _navigateToPerfilCerdo(int cerdoId) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PerfilCerdo(cerdoId: cerdoId)),
+    );
+
+    // Al regresar, recarga los cerdos para asegurarte de que la etapa esté actualizada
+    loadCerdos(); // Recargar cerdos después de regresar
   }
 }
 

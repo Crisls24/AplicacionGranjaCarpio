@@ -41,6 +41,7 @@ class _RegistrarCerdoState extends State<RegistrarCerdo> {
         return;
       }
 
+
       bool idUnico = await _verificarIdUnico(_idController.text);
       if (!idUnico) {
         ScaffoldMessenger.of(context).showSnackBar(
