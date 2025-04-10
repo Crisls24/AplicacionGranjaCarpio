@@ -70,7 +70,7 @@ class _OptionPageState extends State<OptionPage> {
             _selectedIndex = index;
           });
         },
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.deepPurple,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Calendario'),
@@ -130,6 +130,13 @@ class _HomePageState extends State<HomePage> {
       _filteredCerdos = _cerdos.where((cerdo) {
         return cerdo['etapa'].toString().toLowerCase() == raza.toLowerCase(); // Filtrar por etapa
       }).toList();
+    });
+  }
+
+  // Método para mostrar todos los cerdos
+  void _showAllCerdos() {
+    setState(() {
+      _filteredCerdos = List.from(_cerdos); // Mostrar todos los cerdos
     });
   }
 
@@ -210,6 +217,19 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          const SizedBox(height: 2),
+          // Botón "Ver todos" para mostrar todos los cerdos
+          TextButton(
+            onPressed: _showAllCerdos, // Llama a la función para mostrar todos los cerdos
+            child: Text(
+              "Ver todos",
+              style: TextStyle(
+                color: Colors.deepPurple,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
           const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
@@ -245,6 +265,7 @@ class _HomePageState extends State<HomePage> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
                           ),
                           child: const Text('View'),
                         ),
@@ -259,6 +280,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 
   // Método para navegar al perfil del cerdo
   void _navigateToPerfilCerdo(int cerdoId) async {

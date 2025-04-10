@@ -140,6 +140,7 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                       ElevatedButton.icon(
                         icon: Icon(
                           isEditing ? Icons.check : Icons.edit,
+                          color: Colors.white,
                           size: 20,
                         ),
                         label: Text(
@@ -147,7 +148,7 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                           style: TextStyle(fontSize: 16),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isEditing ? Colors.green : Colors.blue,
+                          backgroundColor: isEditing ? Colors.green : Colors.deepPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -223,7 +224,7 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                                 etapaActual
                             )}",
                           ),
-                          Icon(Icons.restaurant, color: Colors.blue),
+                          Icon(Icons.restaurant, color: Colors.deepPurple),
                         ],
                       ),
                     ),
@@ -315,7 +316,7 @@ class _PerfilCerdoState extends State<PerfilCerdo> {
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red),
                                 onPressed: () {
-                                  _confirmDeleteHistorial(index); // Llama al método de confirmación
+                                  _confirmDeleteHistorial(index);
                                 },
                               ),
                             ],

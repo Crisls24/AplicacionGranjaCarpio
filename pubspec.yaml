@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   sqflite: any
   path: any
+  table_calendar: ^3.0.0
   flutter_localizations:
     sdk: flutter
 
